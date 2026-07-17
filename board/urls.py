@@ -1,20 +1,31 @@
-from django.urls import path
-from board.views import (
-    HoldDetail,
-    HoldList,
-    LayoutDetail,
-    LayoutList,
-    RouteDetail,
-    RouteListCreate,
+from django.urls import include, path
+
+from board.apis import (
+    HoldListApi,
+    HoldDetailApi,
+    RouteListApi,
+    RouteDetailApi,
+    LayoutListApi,
+    LayoutDetailApi,
 )
 
+hold_patterns = [
+    path("", HoldListApi.as_view(), name="list"),
+    path("<int:hold_id>/", HoldDetailApi.as_view(), name="detail"),
+]
+
+route_patterns = [
+    path("", RouteListApi.as_view(), name="list"),
+    path("<int:route_id>/", RouteDetailApi.as_view(), name="detail"),
+]
+
+layout_patterns = [
+    path("", LayoutListApi.as_view(), name="list"),
+    path("<int:layout_id>/", LayoutDetailApi.as_view(), name="detail"),
+]
+
 urlpatterns = [
-    # path("routes/", RouteListCreate.as_view(), name="route-list"),
-    # path("routes/<int:pk>/", RouteDetail.as_view(), name="route-detail"),
-    path("layouts/", LayoutList.as_view(), name="layout-list"),
-    path("layouts/<int:pk>/", LayoutDetail.as_view(), name="layout-detail"),
-    path("layouts/<int:layout_id>/routes/", RouteListCreate.as_view()),
-    path("layouts/<int:layout_id>/routes/<int:pk>/", RouteDetail.as_view()),
-    path("holds/", HoldList.as_view(), name="hold-list"),
-    path("holds/<int:pk>/", HoldDetail.as_view(), name="hold-detail"),
+    path("holds/", include((hold_patterns, "holds"))),
+    path("routes/", include((route_patterns, "routes"))),
+    path("layouts/", include((layout_patterns, "layouts"))),
 ]
