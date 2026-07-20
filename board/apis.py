@@ -1,10 +1,11 @@
 from rest_framework import serializers
 from rest_framework.response import Response
-from rest_framework.views import APIView
+from rest_framework.views import APIView, status
 
 from board.selectors.hold import hold_get, hold_list
 from board.selectors.route import route_list, route_get, route_get_by_layout_id
 from board.selectors.layout import layout_list, layout_get
+from board.services.hold import hold_create
 
 
 class HoldListApi(APIView):
@@ -37,6 +38,23 @@ class HoldDetailApi(APIView):
         serializer = self.OutputSerializer(hold)
 
         return Response(serializer.data)
+
+
+class HoldCreateApi(APIView):
+    class InputSerializer(serializers.Serializer):
+        name = serializers.CharField()
+        model_file = serializers.FileField()
+
+    class OutputSerializer(serializers.Serializer):
+        id = serializers.CharField()
+
+    def post(self, request):
+        serializer = self.InputSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        hold_create(owner=request.user, **serializer.validated_data)
+
+        return Response(status=status.HTTP_201_CREATED)
 
 
 class RouteListApi(APIView):
@@ -101,3 +119,19 @@ class LayoutDetailApi(APIView):
         serializer = self.OutputSerializer(layout)
 
         return Response(serializer.data)
+
+
+class LayoutRouteListApi(APIView):
+    class OutputSerializer(serializers.Serializer):
+        id = serializers.CharField()
+        name = serializers.CharField()
+        grade = serializers.CharField()
+        owner = serializers.CharField()
+        layout = serializers.CharField()
+
+    def get(self, request, layout_id):
+        routes = route_get_by_layout_id(layout_id)
+
+        data = self.OutputSerializer(routes, many=True).data
+
+        return Response(data)

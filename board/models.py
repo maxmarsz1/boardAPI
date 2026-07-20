@@ -1,4 +1,3 @@
-from django.contrib.auth import get_user_model
 from django.db import models
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
@@ -23,11 +22,12 @@ class Hold(BaseModel):
         START = "START", "Start"
         END = "END", "End"
 
-    name = models.CharField(max_length=20)
+    name = models.CharField(max_length=20, unique=True)
     image = models.ImageField(upload_to="assets/holds/images", null=True, blank=True)
     model_file = models.FileField(upload_to="assets/holds/models")
+    uploaded_at = models.DateTimeField(blank=True, null=True)
     owner = models.ForeignKey(
-        get_user_model(),
+        settings.AUTH_USER_MODEL,
         related_name="user_holds",
         null=True,
         on_delete=models.SET_NULL,
@@ -36,6 +36,10 @@ class Hold(BaseModel):
     def __str__(self):
         owner = self.owner.username if self.owner else "Unknown"
         return f"{self.name} by {owner}"
+
+    @property
+    def url(self):
+        return f"{settings.APP_DOMAIN}{self.model_file.url}"
 
 
 class Layout(BaseModel):

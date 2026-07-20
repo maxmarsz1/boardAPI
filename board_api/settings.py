@@ -10,13 +10,14 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
-import environ, os
+import environ
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-env = environ.Env(DJANGO_DEBUG=(bool, True))
+env = environ.Env()
 env.read_env(os.path.join(BASE_DIR, ".env"))
 
 
@@ -27,10 +28,11 @@ env.read_env(os.path.join(BASE_DIR, ".env"))
 SECRET_KEY = env("DJANGO_SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env("DJANGO_DEBUG")
+DEBUG = env.bool("DJANGO_DEBUG", default=True)
 
 ALLOWED_HOSTS = []
 
+APP_DOMAIN = env.str("APP_DOMAIN", default="http://localhost:8000")
 
 # Application definition
 
@@ -137,3 +139,5 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = "static/"
+
+FILE_MAX_SIZE = env.int("FILE_MAX_SIZE", default=10 * 1024 * 1024)  # 10MiB
