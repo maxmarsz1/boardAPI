@@ -15,6 +15,12 @@ def validate_div_five(value):
         )
 
 
+def hold_upload_path(instance, filename):
+    # TODO:
+    # Move path to settings variable
+    return "assets/holds/models/" + instance.name + ".stl"
+
+
 class Hold(BaseModel):
     class Type(models.TextChoices):
         ALL = "ALL", "All"
@@ -24,7 +30,7 @@ class Hold(BaseModel):
 
     name = models.CharField(max_length=20, unique=True)
     image = models.ImageField(upload_to="assets/holds/images", null=True, blank=True)
-    model_file = models.FileField(upload_to="assets/holds/models")
+    model_file = models.FileField(upload_to=hold_upload_path)
     uploaded_at = models.DateTimeField(blank=True, null=True)
     owner = models.ForeignKey(
         settings.AUTH_USER_MODEL,

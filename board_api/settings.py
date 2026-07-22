@@ -63,6 +63,7 @@ MIDDLEWARE = [
 
 REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    "EXCEPTION_HANDLER": "common.utils.custom_exception_handler",
 }
 
 SPECTACULAR_SETTINGS = {
