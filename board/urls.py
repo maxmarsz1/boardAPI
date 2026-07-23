@@ -9,6 +9,8 @@ from board.apis import (
     RouteDetailApi,
     LayoutListApi,
     LayoutDetailApi,
+    LayoutCreateApi,
+    LayoutHoldAssignApi,
 )
 
 hold_patterns = [
@@ -24,6 +26,12 @@ route_patterns = [
 
 layout_patterns = [
     path("", LayoutListApi.as_view(), name="list"),
+    path("create/", LayoutCreateApi.as_view(), name="create"),
+    path(
+        "<int:layout_id>/hold-assign/",
+        LayoutHoldAssignApi.as_view(),
+        name="hold-assign",
+    ),
     path("<int:layout_id>/", LayoutDetailApi.as_view(), name="detail"),
     path("<int:layout_id>/routes/", LayoutRouteListApi.as_view(), name="routes-list"),
 ]

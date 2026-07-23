@@ -2,10 +2,12 @@ from pathlib import Path
 from typing import List
 from django.conf import settings
 from django.core.files.uploadedfile import UploadedFile
-from rest_framework import exceptions
+from django.http import Http404
+from django.shortcuts import get_object_or_404
 from django.core.exceptions import ValidationError as DjangoValidationError
 from rest_framework.views import exception_handler
 from rest_framework.serializers import as_serializer_error
+from rest_framework import exceptions
 
 
 def validate_file_size(file_obj: UploadedFile):
@@ -43,3 +45,14 @@ def custom_exception_handler(exc, ctx):
         return response
 
     return response
+
+
+def get_object(model_or_queryset, **kwargs):
+    """
+    Reuse get_object_or_404 since the implementation supports both Model && queryset.
+    Catch Http404 & return None
+    """
+    try:
+        return get_object_or_404(model_or_queryset, **kwargs)
+    except Http404:
+        return None

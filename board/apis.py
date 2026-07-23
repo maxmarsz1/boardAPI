@@ -6,6 +6,7 @@ from board.selectors.hold import hold_get, hold_list
 from board.selectors.route import route_list, route_get, route_get_by_layout_id
 from board.selectors.layout import layout_list, layout_get
 from board.services.hold import hold_create
+from board.services.layout import layout_assign_hold, layout_create
 
 
 class HoldListApi(APIView):
@@ -121,6 +122,25 @@ class LayoutDetailApi(APIView):
         return Response(serializer.data)
 
 
+class LayoutCreateApi(APIView):
+    class InputSerializer(serializers.Serializer):
+        name = serializers.CharField()
+        rows = serializers.CharField()
+        cols = serializers.CharField()
+
+    class OutputSerializer(serializers.Serializer):
+        id = serializers.CharField()
+
+    def post(self, request):
+        input_serializer = self.InputSerializer(data=request.data)
+        input_serializer.is_valid(raise_exception=True)
+
+        layout = layout_create(**input_serializer.data)
+
+        output_serializer = self.OutputSerializer(layout)
+        return Response(output_serializer.data)
+
+
 class LayoutRouteListApi(APIView):
     class OutputSerializer(serializers.Serializer):
         id = serializers.CharField()
@@ -135,3 +155,18 @@ class LayoutRouteListApi(APIView):
         data = self.OutputSerializer(routes, many=True).data
 
         return Response(data)
+
+
+class LayoutHoldAssignApi(APIView):
+    class InputSerializer(serializers.Serializer):
+        hold_id = serializers.CharField()
+        index = serializers.CharField()
+        rotation = serializers.IntegerField()
+
+    def post(self, request, layout_id):
+        serializer = self.InputSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        layout_assign_hold(layout_id=layout_id, **serializer.data)
+
+        return Response(status=status.HTTP_201_CREATED)

@@ -1,6 +1,6 @@
 from typing import Iterable
-from django.shortcuts import get_object_or_404
 
+from common.utils import get_object
 from board.models import Layout
 
 
@@ -9,5 +9,5 @@ def layout_list() -> Iterable[Layout]:
 
 
 def layout_get(pk: int) -> Layout | None:
-    layout = get_object_or_404(Layout, pk=pk)
+    layout = get_object(Layout, pk=pk)
     return layout

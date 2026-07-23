@@ -69,6 +69,9 @@ class LayoutHold(BaseModel):
     index = models.PositiveSmallIntegerField()
     rotation = models.PositiveSmallIntegerField(validators=[MaxValueValidator(359)])
 
+    class Meta:
+        unique_together = ["layout", "index"]
+
     def __str__(self):
         return f"Layout {self.layout.name} - Hold {self.hold.name} at {self.index}({self.rotation}°)"
 

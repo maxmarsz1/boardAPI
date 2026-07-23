@@ -1,7 +1,7 @@
 from typing import Iterable
 from django.db.models import Q
-from django.shortcuts import get_object_or_404
 
+from common.utils import get_object
 from board.models import Route
 
 
@@ -16,5 +16,5 @@ def route_get_by_layout_id(pk: int) -> Iterable[Route]:
 
 
 def route_get(pk: int) -> Route | None:
-    route = get_object_or_404(Route, pk=pk)
+    route = get_object(Route, pk=pk)
     return route
