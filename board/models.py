@@ -60,6 +60,10 @@ class Layout(BaseModel):
     def __str__(self):
         return f"{self.name} ({self.cols}x{self.rows})"
 
+    @property
+    def max_index(self):
+        return self.cols * self.rows - 1
+
 
 class LayoutHold(BaseModel):
     layout = models.ForeignKey(

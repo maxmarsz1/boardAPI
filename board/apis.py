@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from rest_framework.response import Response
+from rest_framework.status import HTTP_200_OK
 from rest_framework.views import APIView, status
 
 from board.selectors.hold import hold_get, hold_list
@@ -160,13 +161,15 @@ class LayoutRouteListApi(APIView):
 class LayoutHoldAssignApi(APIView):
     class InputSerializer(serializers.Serializer):
         hold_id = serializers.CharField()
-        index = serializers.CharField()
+        index = serializers.IntegerField()
         rotation = serializers.IntegerField()
 
     def post(self, request, layout_id):
         serializer = self.InputSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        layout_assign_hold(layout_id=layout_id, **serializer.data)
+        created = layout_assign_hold(layout_id=layout_id, **serializer.data)
 
-        return Response(status=status.HTTP_201_CREATED)
+        return Response(
+            status=status.HTTP_201_CREATED if created else status.HTTP_200_OK
+        )
