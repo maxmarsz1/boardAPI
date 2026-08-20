@@ -1,13 +1,13 @@
+from django.http import Http404
 from rest_framework import serializers
 from rest_framework.response import Response
-from rest_framework.status import HTTP_200_OK
 from rest_framework.views import APIView, status
 
 from board.selectors.hold import hold_get, hold_list
 from board.selectors.route import route_list, route_get, route_get_by_layout_id
 from board.selectors.layout import layout_list, layout_get
-from board.services.hold import hold_create
-from board.services.layout import layout_assign_hold, layout_create
+from board.services.hold import hold_create, hold_update
+from board.services.layout import layout_assign_hold, layout_create, layout_update
 
 
 class HoldListApi(APIView):
@@ -46,6 +46,7 @@ class HoldCreateApi(APIView):
     class InputSerializer(serializers.Serializer):
         name = serializers.CharField()
         model_file = serializers.FileField()
+        image = serializers.FileField(required=False)
 
     class OutputSerializer(serializers.Serializer):
         id = serializers.CharField()
@@ -57,6 +58,28 @@ class HoldCreateApi(APIView):
         hold_create(owner=request.user, **serializer.validated_data)
 
         return Response(status=status.HTTP_201_CREATED)
+
+
+class HoldUpdateApi(APIView):
+    class InputSerializer(serializers.Serializer):
+        name = serializers.CharField(required=False)
+        model_file = serializers.FileField(required=False)
+        image = serializers.FileField(required=False)
+
+    def post(self, request, hold_id):
+        serializer = self.InputSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        hold = hold_get(hold_id)
+
+        if hold is None:
+            raise Http404
+
+        hold = hold_update(hold=hold, data=serializer.validated_data)
+
+        data = HoldDetailApi.OutputSerializer(hold).data
+
+        return Response(data)
 
 
 class RouteListApi(APIView):
@@ -140,6 +163,27 @@ class LayoutCreateApi(APIView):
 
         output_serializer = self.OutputSerializer(layout)
         return Response(output_serializer.data)
+
+
+class LayoutUpdateApi(APIView):
+    class InputSerializer(serializers.Serializer):
+        name = serializers.CharField(required=False)
+        rows = serializers.CharField(required=False)
+        cols = serializers.CharField(required=False)
+
+    def post(self, request, layout_id):
+        input_serializer = self.InputSerializer(data=request.data)
+        input_serializer.is_valid(raise_exception=True)
+
+        layout = layout_get(layout_id)
+
+        if layout is None:
+            raise Http404
+
+        layout = layout_update(layout=layout, data=input_serializer.data)
+
+        data = LayoutDetailApi.OutputSerializer(layout).data
+        return Response(data)
 
 
 class LayoutRouteListApi(APIView):

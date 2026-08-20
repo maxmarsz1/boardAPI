@@ -4,12 +4,14 @@ from board.apis import (
     HoldListApi,
     HoldDetailApi,
     HoldCreateApi,
+    HoldUpdateApi,
     LayoutRouteListApi,
     RouteListApi,
     RouteDetailApi,
     LayoutListApi,
     LayoutDetailApi,
     LayoutCreateApi,
+    LayoutUpdateApi,
     LayoutHoldAssignApi,
 )
 
@@ -17,6 +19,7 @@ hold_patterns = [
     path("", HoldListApi.as_view(), name="list"),
     path("create/", HoldCreateApi.as_view(), name="create"),
     path("<int:hold_id>/", HoldDetailApi.as_view(), name="detail"),
+    path("<int:hold_id>/update/", HoldUpdateApi.as_view(), name="update"),
 ]
 
 route_patterns = [
@@ -33,6 +36,7 @@ layout_patterns = [
         name="hold-assign",
     ),
     path("<int:layout_id>/", LayoutDetailApi.as_view(), name="detail"),
+    path("<int:layout_id>/update/", LayoutUpdateApi.as_view(), name="update"),
     path("<int:layout_id>/routes/", LayoutRouteListApi.as_view(), name="routes-list"),
 ]
 

@@ -1,8 +1,10 @@
+from typing import List
 from django.http import Http404
 from rest_framework.exceptions import ValidationError
 from board.models import Layout, LayoutHold
-from board.selectors.layout import layout_get
+from board.selectors.layout import layout_get, layout_get_assigned_hold
 from board.selectors.hold import hold_get
+from common.services import model_update
 
 
 def layout_create(*, name: str, rows: int, cols: int) -> Layout:
@@ -14,13 +16,14 @@ def layout_create(*, name: str, rows: int, cols: int) -> Layout:
     return layout
 
 
-def layout_get_assigned_hold(*, layout_id: int, index: int) -> LayoutHold | None:
-    layout = layout_get(layout_id)
+def layout_update(*, layout: Layout, data) -> Layout:
+    update_fields: List[str] = ["name", "cols", "rows"]
+    layout, has_updated = model_update(instance=layout, fields=update_fields, data=data)
 
-    try:
-        return LayoutHold.objects.get(layout=layout, index=index)
-    except LayoutHold.DoesNotExist:
-        return None
+    # TODO:
+    # add verification if layout doesn't have any routes assigned
+
+    return layout
 
 
 def layout_assign_hold(
