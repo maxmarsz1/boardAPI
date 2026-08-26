@@ -3,7 +3,7 @@ from rest_framework import serializers
 from rest_framework.response import Response
 from rest_framework.views import APIView, status
 
-from board.selectors.hold import hold_get, hold_list
+from board.selectors.hold import hold_get, hold_get_assigned_layouts_count, hold_list
 from board.selectors.route import route_list, route_get, route_get_by_layout_id
 from board.selectors.layout import layout_list, layout_get
 from board.services.hold import hold_create, hold_update
@@ -33,9 +33,7 @@ class HoldDetailApi(APIView):
         model_file = serializers.CharField()
 
     def get(self, request, hold_id):
-        hold = hold_get(pk=hold_id)
-        print(hold_id)
-        print(hold)
+        hold = hold_get(hold_id=hold_id)
 
         serializer = self.OutputSerializer(hold)
 
@@ -48,16 +46,15 @@ class HoldCreateApi(APIView):
         model_file = serializers.FileField()
         image = serializers.FileField(required=False)
 
-    class OutputSerializer(serializers.Serializer):
-        id = serializers.CharField()
-
     def post(self, request):
         serializer = self.InputSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        hold_create(owner=request.user, **serializer.validated_data)
+        hold = hold_create(owner=request.user, **serializer.validated_data)
 
-        return Response(status=status.HTTP_201_CREATED)
+        data = HoldDetailApi.OutputSerializer(hold).data
+
+        return Response(data)
 
 
 class HoldUpdateApi(APIView):
@@ -74,6 +71,11 @@ class HoldUpdateApi(APIView):
 
         if hold is None:
             raise Http404
+
+        if hold_get_assigned_layouts_count(hold_id) != 0:
+            raise serializers.ValidationError(
+                detail="Cannot update hold that is already assigned to layout"
+            )
 
         hold = hold_update(hold=hold, data=serializer.validated_data)
 
@@ -152,17 +154,15 @@ class LayoutCreateApi(APIView):
         rows = serializers.CharField()
         cols = serializers.CharField()
 
-    class OutputSerializer(serializers.Serializer):
-        id = serializers.CharField()
-
     def post(self, request):
         input_serializer = self.InputSerializer(data=request.data)
         input_serializer.is_valid(raise_exception=True)
 
         layout = layout_create(**input_serializer.data)
 
-        output_serializer = self.OutputSerializer(layout)
-        return Response(output_serializer.data)
+        data = LayoutDetailApi.OutputSerializer(layout).data
+
+        return Response(data)
 
 
 class LayoutUpdateApi(APIView):
@@ -179,6 +179,11 @@ class LayoutUpdateApi(APIView):
 
         if layout is None:
             raise Http404
+
+        if route_get_by_layout_id(layout_id).count():
+            raise serializers.ValidationError(
+                detail="Cannot edit layout with assigned routes"
+            )
 
         layout = layout_update(layout=layout, data=input_serializer.data)
 

@@ -69,7 +69,9 @@ class LayoutHold(BaseModel):
     layout = models.ForeignKey(
         Layout, related_name="layout_holds", on_delete=models.CASCADE
     )
-    hold = models.ForeignKey(Hold, on_delete=models.CASCADE)
+    hold = models.ForeignKey(
+        Hold, related_name="layouts_using", on_delete=models.CASCADE
+    )
     index = models.PositiveSmallIntegerField()
     rotation = models.PositiveSmallIntegerField(validators=[MaxValueValidator(359)])
 
