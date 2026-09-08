@@ -1,9 +1,13 @@
 from typing import List
 from django.http import Http404
 from rest_framework.exceptions import ValidationError
+from django.core.files import File
+from io import BytesIO
+
 from board.models import Layout, LayoutHold
 from board.selectors.layout import layout_get, layout_get_assigned_hold
 from board.selectors.hold import hold_get
+from board.utils import LayoutPreviewGenerator
 from common.services import model_update
 
 
@@ -60,3 +64,18 @@ def layout_assign_hold(
     layout_hold.save()
 
     return created
+
+
+def layout_generate_preview(*, layout_id: int):
+    layout = layout_get(layout_id)
+
+    if layout is None:
+        raise Http404("layout not found")
+
+    layout_generator = LayoutPreviewGenerator(layout=layout)
+    preview_image = layout_generator.generate()
+    blob = BytesIO()
+    preview_image.save(blob, "PNG")
+
+    preview_filename = f"{layout.name}.png"
+    layout.preview_image.save(preview_filename, File(blob))

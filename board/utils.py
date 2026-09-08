@@ -1,23 +1,20 @@
 from typing import Tuple
 from PIL import Image, ImageFile
-
 from django.db.models import QuerySet
 
-from board.models import LayoutHold
+from board.models import LayoutHold, Layout
 
 
 class LayoutPreviewGenerator:
     MIN_LAYOUT_WIDTH = 300
     MIN_HOLD_WIDTH = 128
 
-    def __init__(
-        self, cols: int, rows: int, layout_holds: QuerySet[LayoutHold]
-    ) -> None:
-        self.cols = cols
-        self.rows = rows
-        self.layout_holds = layout_holds
-        self.hold_width = self._get_hold_width()
-        self.preview_size = self._get_preview_size()
+    def __init__(self, layout: Layout) -> None:
+        self.cols: int = layout.cols
+        self.rows: int = layout.rows
+        self.layout_holds: QuerySet[LayoutHold] = layout.layout_holds.all()
+        self.hold_width: int = self._get_hold_width()
+        self.preview_size: Tuple[int, int] = self._get_preview_size()
 
     def _get_hold_width(self) -> int:
         if self.MIN_HOLD_WIDTH * self.cols < self.MIN_LAYOUT_WIDTH:

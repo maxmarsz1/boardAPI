@@ -13,6 +13,7 @@ from board.apis import (
     LayoutCreateApi,
     LayoutUpdateApi,
     LayoutHoldAssignApi,
+    LayoutGeneratePreviewApi,
 )
 
 hold_patterns = [
@@ -38,6 +39,11 @@ layout_patterns = [
     path("<int:layout_id>/", LayoutDetailApi.as_view(), name="detail"),
     path("<int:layout_id>/update/", LayoutUpdateApi.as_view(), name="update"),
     path("<int:layout_id>/routes/", LayoutRouteListApi.as_view(), name="routes-list"),
+    path(
+        "<int:layout_id>/generate-preview/",
+        LayoutGeneratePreviewApi.as_view(),
+        name="generate-preview",
+    ),
 ]
 
 urlpatterns = [

@@ -7,7 +7,12 @@ from board.selectors.hold import hold_get, hold_get_assigned_layouts_count, hold
 from board.selectors.route import route_list, route_get, route_get_by_layout_id
 from board.selectors.layout import layout_list, layout_get
 from board.services.hold import hold_create, hold_update
-from board.services.layout import layout_assign_hold, layout_create, layout_update
+from board.services.layout import (
+    layout_assign_hold,
+    layout_create,
+    layout_generate_preview,
+    layout_update,
+)
 
 
 class HoldListApi(APIView):
@@ -222,3 +227,10 @@ class LayoutHoldAssignApi(APIView):
         return Response(
             status=status.HTTP_201_CREATED if created else status.HTTP_200_OK
         )
+
+
+class LayoutGeneratePreviewApi(APIView):
+    def get(self, request, layout_id):
+        layout_generate_preview(layout_id=layout_id)
+
+        return Response(status=status.HTTP_200_OK)
