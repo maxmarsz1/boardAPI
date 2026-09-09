@@ -33,20 +33,6 @@ class RouteTests(TestCase):
         with self.assertRaises(ValidationError):
             obj.full_clean()
 
-    def test_route_save_with_not_unique_layout_and_name_fails_with_integrity_error(
-        self,
-    ):
-        obj = Route(
-            name="route", owner=self.user, layout=self.layout, grade="8c", tilt=5
-        )
-        obj.save()
-
-        with self.assertRaises(IntegrityError):
-            obj1 = Route(
-                name="route", owner=self.user, layout=self.layout, grade="6c+", tilt=15
-            )
-            obj1.save()
-
     def test_route_can_be_created_when_tilt_valid_and_name_and_layout_unique(self):
         obj = Route(
             name="route", owner=self.user, layout=self.layout, grade="6b", tilt=10

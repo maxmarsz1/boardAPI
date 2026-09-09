@@ -1,7 +1,7 @@
-from typing import Iterable, List
+from typing import Iterable
 
 from common.utils import get_object
-from board.models import Layout, LayoutHold, Route
+from board.models import Layout, LayoutHold
 
 
 def layout_list() -> Iterable[Layout]:
